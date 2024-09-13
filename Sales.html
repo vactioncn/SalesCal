@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高端批量采购优惠计算器</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f3e9e3;
+            color: #5d5c61;
+        }
+        h1 {
+            text-align: center;
+            color: #7395ae;
+            margin-bottom: 30px;
+        }
+        .product-cards {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .product-card {
+            background-color: #e8dfd8;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 15px;
+            width: 23%;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .product-card.selected {
+            background-color: #b0c4de;
+            color: #fff;
+        }
+        .product-card h3 {
+            margin-top: 0;
+            font-size: 1.1em;
+        }
+        .product-card p {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .product-card .description {
+            font-size: 0.8em;
+            color: #666;
+            height: 50px;
+            overflow: hidden;
+        }
+        .product-card.selected .description {
+            color: #f0f0f0;
+        }
+        input, button, select {
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #d1c1b6;
+            font-size: 14px;
+            background-color: #faf6f3;
+            color: #5d5c61;
+        }
+        button {
+            background-color: #7395ae;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #557a95;
+        }
+        #calculatorForm {
+            background-color: #e8dfd8;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #discountSettings {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #d8c3b5;
+            border-radius: 5px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #b0c4de;
+            color: #fff;
+            border-radius: 10px;
+        }
+        #showDiscountSettings {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #d1c1b6;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .quantity-selector button {
+            font-size: 16px;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            line-height: 1;
+        }
+        .quantity-selector input {
+            width: 50px;
+            text-align: center;
+            margin: 0 8px;
+        }
+        .quick-select {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .quick-select button {
+            width: 23%;
+            background-color: #a8b4a5;
+            font-size: 12px;
+        }
+        .quick-select button:hover {
+            background-color: #8fa089;
+        }
+    </style>
+</head>
+<body>
+    <h1>高端批量采购优惠计算器</h1>
+    <div class="product-cards">
+        <div class="product-card" data-price="88">
+            <h3>单次体验版</h3>
+            <p>¥88</p>
+            <div class="description">让潜在用户可以尝试产品功能，体验教练技能提升的魅力。</div>
+        </div>
+        <div class="product-card" data-price="688">
+            <h3>晨练启航版</h3>
+            <p>¥688</p>
+            <div class="description">针对新手，特别适合早晨练习的场景，助您开启美好的一天。</div>
+        </div>
+        <div class="product-card" data-price="1288">
+            <h3>初级进阶版</h3>
+            <p>¥1,288</p>
+            <div class="description">面向想要提升技能的初级教练，帮助您更上一层楼。</div>
+        </div>
+        <div class="product-card" data-price="3388">
+            <h3>认证助力版</h3>
+            <p>¥3,388</p>
+            <div class="description">专门为准备PCC认证考试的用户设计，助您一臂之力。</div>
+        </div>
+    </div>
+    
+    <form id="calculatorForm">
+        <label for="quantity">采购数量：</label>
+        <div class="quantity-selector">
+            <button type="button" id="decreaseQuantity">-</button>
+            <input type="number" id="quantity" value="1" min="1" required>
+            <button type="button" id="increaseQuantity">+</button>
+        </div>
+        <div class="quick-select">
+            <button type="button" class="quick-select-btn" data-quantity="10">10套</button>
+            <button type="button" class="quick-select-btn" data-quantity="20">20套</button>
+            <button type="button" class="quick-select-btn" data-quantity="30">30套</button>
+            <button type="button" class="quick-select-btn" data-quantity="50">50套</button>
+        </div>
+        
+        <div id="discountSettings">
+            <h3>优惠区间设置：</h3>
+            <label for="discount1">1-10套优惠幅度 (%)：</label>
+            <input type="number" id="discount1" value="30">
+
+            <label for="discount2">11-50套优惠幅度 (%)：</label>
+            <input type="number" id="discount2" value="40">
+
+            <label for="discount3">51-200套优惠幅度 (%)：</label>
+            <input type="number" id="discount3" value="50">
+
+            <label for="discount4">200套以上优惠幅度 (%)：</label>
+            <input type="number" id="discount4" value="60">
+
+            <button type="button" id="saveDiscountSettings">保存设置</button>
+        </div>
+    </form>
+
+    <div id="result"></div>
+
+    <button id="showDiscountSettings">设置优惠区间</button>
+
+    <script>
+        let selectedProduct = null;
+        const productCards = document.querySelectorAll('.product-card');
+        const discountSettingsBtn = document.getElementById('showDiscountSettings');
+        const discountSettings = document.getElementById('discountSettings');
+        const saveDiscountSettingsBtn = document.getElementById('saveDiscountSettings');
+        const resultDiv = document.getElementById('result');
+        const quantityInput = document.getElementById('quantity');
+        const decreaseQuantityBtn = document.getElementById('decreaseQuantity');
+        const increaseQuantityBtn = document.getElementById('increaseQuantity');
+        const quickSelectBtns = document.querySelectorAll('.quick-select-btn');
+
+        function formatCurrency(number) {
+            return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(number);
+        }
+
+        function calculateAndDisplayResult() {
+            if (!selectedProduct) {
+                alert('请选择一个产品');
+                return;
+            }
+
+            const quantity = parseInt(quantityInput.value);
+            const discount1 = parseFloat(document.getElementById('discount1').value) / 100;
+            const discount2 = parseFloat(document.getElementById('discount2').value) / 100;
+            const discount3 = parseFloat(document.getElementById('discount3').value) / 100;
+            const discount4 = parseFloat(document.getElementById('discount4').value) / 100;
+
+            let discountRate;
+            if (quantity <= 10) {
+                discountRate = discount1;
+            } else if (quantity <= 50) {
+                discountRate = discount2;
+            } else if (quantity <= 200) {
+                discountRate = discount3;
+            } else {
+                discountRate = discount4;
+            }
+
+            const totalPrice = selectedProduct.price * quantity;
+            const discountedPrice = totalPrice * (1 - discountRate);
+            const savedAmount = totalPrice - discountedPrice;
+
+            let interpretation = '';
+            if (quantity === 1) {
+                interpretation = '您选择了单套购买，享受基础优惠。';
+            } else if (quantity <= 10) {
+                interpretation = '小批量采购可以享受更多优惠，建议考虑增加数量以获得更大折扣。';
+            } else if (quantity <= 50) {
+                interpretation = '中等规模采购，优惠力度显著。如果预算允许，可以考虑更大批量以获得最大优惠。';
+            } else if (quantity <= 200) {
+                interpretation = '大批量采购，享受极具吸引力的折扣。您的选择非常明智！';
+            } else {
+                interpretation = '超大规模采购，享受最高级别的优惠。您将获得最大的成本效益！';
+            }
+
+            resultDiv.innerHTML = `
+                <h3>计算结果：</h3>
+                <p>选择产品：${selectedProduct.name}</p>
+                <p>采购数量：${quantity}套</p>
+                <p>优惠幅度：${(discountRate * 100).toFixed(2)}%</p>
+                <p>原价总额：${formatCurrency(totalPrice)}</p>
+                <p>优惠后总价：${formatCurrency(discountedPrice)}</p>
+                <p>节省金额：${formatCurrency(savedAmount)}</p>
+                <p>解读：${interpretation}</p>
+                <p>单套均价：${formatCurrency(discountedPrice / quantity)}</p>
+            `;
+            
+            resultDiv.style.display = 'block';
+        }
+
+        productCards.forEach(card => {
+            card.addEventListener('click', function() {
+                productCards.forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedProduct = {
+                    name: this.querySelector('h3').textContent,
+                    price: parseFloat(this.dataset.price)
+                };
+                calculateAndDisplayResult();
+            });
+        });
+
+        discountSettingsBtn.addEventListener('click', function() {
+            discountSettings.style.display = discountSettings.style.display === 'none' ? 'block' : 'none';
+        });
+
+        saveDiscountSettingsBtn.addEventListener('click', function() {
+            discountSettings.style.display = 'none';
+            calculateAndDisplayResult();
+        });
+
+        decreaseQuantityBtn.addEventListener('click', function() {
+            if (quantityInput.value > 1) {
+                quantityInput.value = parseInt(quantityInput.value) - 1;
+                calculateAndDisplayResult();
+            }
+        });
+
+        increaseQuantityBtn.addEventListener('click', function() {
+            quantityInput.value = parseInt(quantityInput.value) + 1;
+            calculateAndDisplayResult();
+        });
+
+        quickSelectBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                quantityInput.value = this.dataset.quantity;
+                calculateAndDisplayResult();
+            });
+        });
+
+        quantityInput.addEventListener('input', calculateAndDisplayResult);
+
+        document.getElementById('calculatorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>
